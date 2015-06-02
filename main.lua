@@ -2,19 +2,22 @@ require 'bit'
 
 math.randomseed(os.time())
 
-eight = require 'lua8'
+local eight = require('luaeight'):new()
 
-eight.loadROM("testrom")
+eight:loadROM("roms/IBM")
 
 function love.draw()
 
-	eight.cycle()
+	eight:cycle()
 
-	for x=1, 64 do
-		for y=1, 32 do
-			if eight.display_buffer[x][y] == 1 then
-				love.graphics.rectangle("fill", (16 * (x - 1)), 16 * (y - 1), 16, 16)
-			end
-		end
+	for i = 1, 64 * 32 do
+		local x = i % 64
+		local y = math.floor(i / 64)
+		local b = eight.displayBuffer[i]
+
+		local color = b == 1 and { 255, 255, 255 } or { 0, 0, 0 }
+		love.graphics.setColor(unpack(color))
+		love.graphics.rectangle("fill", x * 16, y * 16, 16, 16)
 	end
+
 end

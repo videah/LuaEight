@@ -2,7 +2,7 @@ io.stdout:setvbuf("no") -- Prints to SublimeText's console
 
 function love.conf(c)
 
-	c.title = "LuaEight"
+	c.title = "LuaEight Virtual Machine"
 	c.author = "Ruairidh 'VideahGams' Carmichael"
 	c.identity = "LuaEight"
 
