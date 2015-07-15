@@ -4,7 +4,7 @@ math.randomseed(os.time())
 
 local eight = require('luaeight'):new()
 
-eight:loadROM("roms/IBM")
+eight:loadROM("roms/videah")
 
 function love.draw()
 

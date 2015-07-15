@@ -45,7 +45,7 @@ function Eight:initialize()
 
 	self.displayBuffer = {}
 	for i=1, 64 * 32 do
-		self.displayBuffer[i] = 1
+		self.displayBuffer[i] = 0
 	end
 
 	self.delayTimer = 0
@@ -303,13 +303,13 @@ function Eight:executeOP(op)
 
 		self.V[0xF] = 0
 
-		local height = bit.band(op, 0x000F) - 1
+		local height = bit.band(op, 0x000F)
 		local rX = self.V[x]
 		local rY = self.V[y]
 
-		for yline=1, height do
+		for yline=0, height - 1 do
 			local spr = self.memory[self.I + yline]
-			for xline=1, 8 do
+			for xline=0, 7 do
 				if bit.band(spr, 0x80) > 0 then
 					if self.displayBuffer[rX + xline + ((rY + yline) * 64)] ~= 0 then
 						self.V[0xF] = 1
