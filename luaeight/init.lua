@@ -36,7 +36,7 @@ function Eight:initialize()
 	end
 
 	self.V = {}
-	for i=1, 16 do
+	for i=0, 15 do
 		self.V[i] = 0
 	end
 
@@ -58,29 +58,41 @@ function Eight:initialize()
 
 end
 
-function Eight:loadROM(rom)
+-- function Eight:loadROM(rom)
 
-	self:initialize()
+-- 	self:initialize()
+
+-- 	local index = 0x200
+
+-- 	local file = io.open(rom)
+-- 	if file == nil then
+-- 		error("Can't find ROM")
+-- 	end
+
+-- 	while true do
+
+-- 		local data = file:read(2)
+-- 		if data == nil then
+-- 			return false
+-- 		end
+-- 		print(data)
+-- 		self.memory[index] = hex.to_dec('0x'  .. data)
+-- 		index = index + 1
+
+-- 	end
+
+-- 	print("Loaded ROM: " .. rom)
+
+-- end
+
+function Eight:loadROM(rom)
 
 	local index = 0x200
 
-	local file = io.open(rom)
-	if file == nil then
-		error("Can't find ROM")
-	end
-
-	while true do
-
-		local data = file:read(2)
-		if data == nil then
-			return true
-		end
-		self.memory[index] = hex.to_dec('0x'  .. data)
+	for file in io.open(rom):read("*a"):gmatch(".") do
+		self.memory[index] = string.byte(file)
 		index = index + 1
-
 	end
-
-	print("Loaded ROM: " .. rom)
 
 end
 
