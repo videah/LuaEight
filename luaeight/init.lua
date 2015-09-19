@@ -58,33 +58,6 @@ function Eight:initialize()
 
 end
 
--- function Eight:loadROM(rom)
-
--- 	self:initialize()
-
--- 	local index = 0x200
-
--- 	local file = io.open(rom)
--- 	if file == nil then
--- 		error("Can't find ROM")
--- 	end
-
--- 	while true do
-
--- 		local data = file:read(2)
--- 		if data == nil then
--- 			return false
--- 		end
--- 		print(data)
--- 		self.memory[index] = hex.to_dec('0x'  .. data)
--- 		index = index + 1
-
--- 	end
-
--- 	print("Loaded ROM: " .. rom)
-
--- end
-
 function Eight:loadROM(rom)
 
 	local index = 0x200
@@ -114,7 +87,7 @@ function Eight:mergeByte(b1, b2, amount)
 
 	local shiftcode = bit.lshift(b1, amount) -- Shift b1 by amount bits to the left
 	local orcode = bit.bor(shiftcode, b2) -- Fill in those new 8 bits with b2
-	
+
 	return orcode
 
 end
@@ -127,6 +100,35 @@ function Eight:fetchOP()
 
 	return self:mergeByte(byte1, byte2, 8)
 
+end
+
+
+function Eight:getMemUsed()
+
+	local counter = 0
+
+	for i=1, 0x1000 do
+		if self.memory[i] ~= 0 then
+			counter = counter + 1
+		end
+	end
+
+	return counter
+
+
+end
+
+function Eight:getMemFree()
+
+	local counter = 0x1000
+
+	for i=1, 0x1000 do
+		if self.memory[i] ~= 0 then
+			counter = counter - 1
+		end
+	end
+
+	return counter
 
 end
 
@@ -136,11 +138,13 @@ function Eight:executeOP(op)
 
 	local x = bit.rshift(bit.band(op, 0x0F00), 8)
 	local y = bit.rshift(bit.band(op, 0x00F0), 4)
-	local kk = bit.band(op, 0x00FF)
+	local nn = bit.band(op, 0x00FF)
 	local nnn = bit.band(op, 0x0FFF)
 	local n = bit.band(op, 0x000F)
 
-	print('Attempting to execute opcode: ' .. hex.to_hex(op))
+	--print('Attempting to execute opcode: ' .. hex.to_hex(op))
+
+	print(op)
 
 	if dcode == 0x0000 then
 
@@ -157,7 +161,7 @@ function Eight:executeOP(op)
 
 	end
 
-	if dcode == 0x1000 then
+	if dcode == 0x1000 then -- 
 
 		self.pc = nnn
 
@@ -165,14 +169,15 @@ function Eight:executeOP(op)
 
 	if dcode == 0x2000 then
 
-		self.stack[#self.stack] = self.pc
+		self.stack[self.sp] = self.pc
+		self.sp = self.sp + 1
 		self.pc = nnn
 
 	end
 
 	if dcode == 0x3000 then
 
-		if self.V[x] == kk then
+		if self.V[x] == nn then
 			self.pc = self.pc + 2
 		end
 
@@ -180,7 +185,7 @@ function Eight:executeOP(op)
 
 	if dcode == 0x4000 then
 
-		if self.V[x] ~= kk then
+		if self.V[x] ~= nn then
 			self.pc = self.pc + 2
 		end
 
@@ -196,13 +201,13 @@ function Eight:executeOP(op)
 
 	if dcode == 0x6000 then
 
-		self.V[x] = kk
+		self.V[x] = nn
 
 	end
 
 	if dcode == 0x7000 then
 
-		self.V[x] = self.V[x] + bit.band(op, kk)
+		self.V[x] = self.V[x] + bit.band(op, nn)
 
 	end
 
@@ -260,8 +265,9 @@ function Eight:executeOP(op)
 
 		if optype == 0x0006 then
 
-			self.V[0xF] = bit.band(self.V[x], 0x1)
-			self.V[x] = bit.rshift(self.V[x], 1)
+			self.V[0xF] = bit.band(self.V[y], 1)
+
+			self.V[x] = bit.rshift(self.V[y], 1)
 
 		end
 
@@ -307,17 +313,17 @@ function Eight:executeOP(op)
 
 	if dcode == 0xC000 then
 
-		self.V[x] = bit.band(math.floor(math.random() * 0xFF), kk)
+		self.V[x] = bit.band(math.floor(math.random() * 0xFF), nn)
 
 	end
 
 	if dcode == 0xD000 then
 
-		self.V[0xF] = 0
-
 		local height = bit.band(op, 0x000F)
 		local rX = self.V[x]
 		local rY = self.V[y]
+
+		self.V[0xF] = 0
 
 		for yline=0, height - 1 do
 			local spr = self.memory[self.I + yline]
@@ -363,6 +369,52 @@ function Eight:executeOP(op)
 
 		if optype == 0x0007 then
 			self.V[x] = self.delayTimer
+		end
+
+		if optype == 0x000A then
+			print("FX0A is not implemented.")
+		end
+
+		if optype == 0x0015 then
+
+			self.delayTimer = self.V[x]
+
+		end
+
+		if optype == 0x0018 then
+			
+			self.soundTimer = self.V[x]
+
+		end
+
+		if optype == 0x001E then
+
+			if self.I + self.V[x] > 0xFFF then
+				self.V[0xF] = 1
+			else
+				self.V[0xF] = 0
+			end
+
+			self.I = self.I + self.V[x]
+
+		end
+
+		if optype == 0x0029 then
+			
+			self.I = self.V[x] * 0x5
+
+		end
+
+		if optype == 0x0033 then
+			print("FX33 is not implemented.")
+		end
+
+		if optype == 0x0055 then
+			print("FX55 is not implemented.")
+		end
+
+		if optype == 0x0065 then
+			print("FX65 is not implemented.")
 		end
 
 	end

@@ -4,16 +4,16 @@ math.randomseed(os.time())
 
 local eight = require('luaeight'):new()
 
-eight:loadROM("roms/testrom")
+eight:loadROM("roms/glitchghost")
 
 function love.draw()
 
 	eight:cycle()
 
 	for i = 1, 64 * 32 do
-		local x = i % 64
-		local y = math.floor(i / 64)
-		local b = eight.displayBuffer[i]
+		local x = ((i - 1) % 64)
+		local y = (math.floor((i - 1) / 64))
+		local b = eight.displayBuffer[i - 1]
 
 		local color = b == 1 and { 255, 255, 255 } or { 0, 0, 0 }
 		love.graphics.setColor(unpack(color))
