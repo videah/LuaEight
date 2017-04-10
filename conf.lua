@@ -9,5 +9,6 @@ function love.conf(c)
 	c.window.width = 1024
 	c.window.height = 512
 	c.window.resizable = true
+	c.gammacorrect = true
 
 end
