@@ -26,7 +26,7 @@ local cpu = require('luaeight.cpu')
 local dbg = require('debugger')
 
 cpu:initialize()
-cpu:loadROM('roms/mazegen')
+cpu:loadROM('roms/IBM')
 
 local paused = false
 

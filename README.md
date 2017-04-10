@@ -1,4 +1,7 @@
 # LuaEight
-CHIP-8 Emulator in Lua
+CHIP-8 Virtual Machine in Lua
 
-![](https://i.imgur.com/9PW91pn.png)
+![](http://i.imgur.com/UeCTYHA.png)
+
+Uses LÖVE for drawing, but could easily be swapped in to any other project.
+Includes a small debug tool that requires [love-imgui](https://github.com/slages/love-imgui)
